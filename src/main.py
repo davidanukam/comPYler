@@ -3,32 +3,14 @@ import subprocess
 
 from macros import *
 
-from tokenization import Tokenizer, Token, TokenType
-
+from tokenization import Tokenizer
 from parser import Parser
+from generation import Generator
 
 
 class Compyler:
     def __init__(self):
         self.main()
-
-    def tokens_to_asm(self, tokens: list[Token]) -> str:
-        output = (
-            f"bits 64\n\ndefault rel\nextern ExitProcess\n\nglobal _start:\n\n_start:\n"
-        )
-
-        for i in range(len(tokens)):
-            if tokens[i].type == TokenType.exit:
-                if (i + 1 < len(tokens)) and tokens[i + 1].type == TokenType.int_lit:
-                    if (i + 2 < len(tokens)) and tokens[i + 2].type == TokenType.semi:
-                        # output += f"    mov rax, 60\n"
-                        # output += f"    mov rdi, {tokens[i + 1].value}\n"
-                        # output += f"    syscall"
-                        output += f"    sub rsp, 40\n"
-                        output += f"    xor rcx, rcx\n"
-                        output += f"    call ExitProcess"
-
-        return output
 
     def main(self) -> int:
         argc = len(sys.argv)
@@ -49,7 +31,16 @@ class Compyler:
         tokenizer = Tokenizer(src)
         tokens = tokenizer.tokenize()
 
-        output = self.tokens_to_asm(tokens)
+        parser = Parser(tokens)
+        tree = parser.parse()
+
+        if not tree:
+            print("No exit statement found")
+            return EXIT_FAILURE
+
+        generator = Generator(tree)
+
+        output = generator.generate()
 
         # write output to .asm file
         with open("test.asm", "w") as f:

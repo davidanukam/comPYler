@@ -24,7 +24,7 @@ class Tokenizer:
         self.curr_dex: int = 0
 
     def peak(self, ahead: int = 1) -> str | None:
-        if self.curr_dex + ahead >= len(self.src):
+        if self.curr_dex + ahead > len(self.src):
             return None
         else:
             return self.src[self.curr_dex]
