@@ -10,61 +10,6 @@ class Compyler:
     def __init__(self):
         self.main()
 
-    def tokenize(self, string: str) -> list[Token]:
-        tokens: list[Token] = []
-
-        char_buf: list[str] = []
-
-        i = 0
-        while True:
-            if i >= len(string):
-                return tokens
-
-            char = string[i]
-
-            # Add first character IF it is a letter (can't start a line with a number)
-            if char.isalpha():
-                char_buf.append(string[i])
-                i += 1
-
-                # Add the rest of the letters
-                while string[i].isalnum():
-                    char_buf.append(string[i])
-                    i += 1
-
-                if "".join(char_buf) == "exit":
-                    tokens.append(Token(type=TokenType.exit, value=None))
-                    char_buf.clear()
-                    continue
-                else:
-                    print("[Error]: You messed up!")
-                    return EXIT_FAILURE
-
-            elif string[i].isdigit():
-                char_buf.append(string[i])
-                i += 1
-
-                # Add the rest of the numbers
-                while string[i].isdigit():
-                    char_buf.append(string[i])
-                    i += 1
-
-                tokens.append(Token(type=TokenType.int_lit, value="".join(char_buf)))
-                char_buf.clear()
-
-            elif string[i] == ";":
-                tokens.append(Token(type=TokenType.semi, value=None))
-                char_buf.clear()
-                i += 1
-
-            elif string[i].isspace():
-                i += 1
-                continue
-
-            else:
-                print("[Error]: You messed up!")
-                return EXIT_FAILURE
-
     def tokens_to_asm(self, tokens: list[Token]) -> str:
         output = (
             f"bits 64\n\ndefault rel\nextern ExitProcess\n\nglobal _start:\n\n_start:\n"
@@ -100,7 +45,6 @@ class Compyler:
         src: str = "".join(contents)
 
         tokenizer = Tokenizer(src)
-
         tokens = tokenizer.tokenize()
 
         output = self.tokens_to_asm(tokens)

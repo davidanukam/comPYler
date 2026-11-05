@@ -23,63 +23,59 @@ class Tokenizer:
         self.src: str = src
         self.curr_idex: str = 0
 
-    def peak(self) -> str | None:
-        if self.curr_idex + 1 >= len(self.src):
+    def peak(self, ahead: int = 1) -> str | None:
+        if self.curr_idex + ahead >= len(self.src):
             return None
         else:
             return self.src[self.curr_idex]
+
+    def consume(self) -> str:
+        char: str = self.src[self.curr_idex]
+        self.curr_idex += 1
+        return char
 
     def tokenize(self) -> list[Token]:
         tokens: list[Token] = []
 
         char_buf: list[str] = []
 
-        i = 0
-        while True:
-            if i >= len(self.src):
-                return tokens
-
-            char = self.src[i]
-
-            # Add first character IF it is a letter (can't start a line with a number)
-            if char.isalpha():
-                char_buf.append(self.src[i])
-                i += 1
+        # Add first character IF it is a letter (can't start a line with a number)
+        while self.peak():
+            if self.peak().isalpha():
+                char_buf.append(self.consume())
 
                 # Add the rest of the letters
-                while self.src[i].isalnum():
-                    char_buf.append(self.src[i])
-                    i += 1
+                while self.peak() and self.peak().isalnum():
+                    char_buf.append(self.consume())
 
                 if "".join(char_buf) == "exit":
                     tokens.append(Token(type=TokenType.exit, value=None))
                     char_buf.clear()
-                    continue
                 else:
                     print("[Error]: You messed up!")
                     return EXIT_FAILURE
 
-            elif self.src[i].isdigit():
-                char_buf.append(self.src[i])
-                i += 1
+            elif self.peak().isdigit():
+                char_buf.append(self.consume())
 
                 # Add the rest of the numbers
-                while self.src[i].isdigit():
-                    char_buf.append(self.src[i])
-                    i += 1
+                while self.peak() and self.peak().isdigit():
+                    char_buf.append(self.consume())
 
                 tokens.append(Token(type=TokenType.int_lit, value="".join(char_buf)))
                 char_buf.clear()
 
-            elif self.src[i] == ";":
+            elif self.peak() == ";":
+                self.consume()
                 tokens.append(Token(type=TokenType.semi, value=None))
                 char_buf.clear()
-                i += 1
 
-            elif self.src[i].isspace():
-                i += 1
-                continue
+            elif self.peak().isspace():
+                self.consume()
 
             else:
                 print("[Error]: You messed up!")
                 return EXIT_FAILURE
+
+        self.curr_idex = 0
+        return tokens
