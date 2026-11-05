@@ -5,6 +5,8 @@ from macros import *
 
 from tokenization import Tokenizer, Token, TokenType
 
+from parser import Parser
+
 
 class Compyler:
     def __init__(self):

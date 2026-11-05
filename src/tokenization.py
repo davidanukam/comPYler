@@ -21,17 +21,17 @@ class Token:
 class Tokenizer:
     def __init__(self, src: str):
         self.src: str = src
-        self.curr_idex: str = 0
+        self.curr_dex: int = 0
 
     def peak(self, ahead: int = 1) -> str | None:
-        if self.curr_idex + ahead >= len(self.src):
+        if self.curr_dex + ahead >= len(self.src):
             return None
         else:
-            return self.src[self.curr_idex]
+            return self.src[self.curr_dex]
 
     def consume(self) -> str:
-        char: str = self.src[self.curr_idex]
-        self.curr_idex += 1
+        char: str = self.src[self.curr_dex]
+        self.curr_dex += 1
         return char
 
     def tokenize(self) -> list[Token]:
@@ -77,5 +77,5 @@ class Tokenizer:
                 print("[Error]: You messed up!")
                 return EXIT_FAILURE
 
-        self.curr_idex = 0
+        self.curr_dex = 0
         return tokens
